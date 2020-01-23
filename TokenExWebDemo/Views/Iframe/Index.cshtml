@@ -1,4 +1,6 @@
-﻿@model TokenExWebDemo.Models.IframeViewModel
+﻿@using System.Web.UI.HtmlControls
+@using TokenExWebDemo.Models
+@model TokenExWebDemo.Models.IframeViewModel
 
 @{
     ViewBag.Title = "Index";
@@ -10,16 +12,14 @@
 @if (ViewBag.token != null)
 {
     <div id="results" class="show">SUCCESS! <br />Token: @ViewBag.token</div>
-    @Html.ActionLink("Return to Form", "Index", null, new { @class = "btnReturn" } );
+    @Html.ActionLink("Return to Form", "Index", null, new { @class = "btnReturn" });
 }
 else
 {
-
-    using (Html.BeginForm(null, null, FormMethod.Post, new { name = "iframeform", id = "iframeform", @class = "hidden" }))
+    using (Html.BeginForm("Index", "Iframe", FormMethod.Post, new { name = "iframeform", id = "iframeform", @class = "hidden" }))
     {
         @Html.HiddenFor(model => model.IframeData, new { @id = "iframeData" })
         @Html.HiddenFor(model => model.Token, new { @id = "token" })
-        @Html.HiddenFor(model => model.HMAC, new { @id = "hmac" })
 
         <div class="row">
             <div class="half">
@@ -33,21 +33,35 @@ else
         </div>
         <hr />
         <label>Credit Card Number</label>
-        <iframe id="tokenExIframe" width="100%" height="45px" scrolling="no" frameborder="0" src="@ViewBag.SessionURL"></iframe>
+        <div id="tokenExIframe" width="100%" scrolling="no" frameborder="0" style="height: 61px;"></div>
         <label>Expiration Date</label>
         <div class="row">
             <div class="half">
-                @Html.DropDownListFor(model => model.ExpMonth, Model.Months, new { @id = "expiry_month", data_val = false })
+                @Html.DropDownListFor(model => model.ExpMonth, IframeViewModel.Months, new { @id = "expiry_month", data_val = false })
             </div>
             <div class="half">
-                @Html.DropDownListFor(model => model.ExpYear, Model.Years, new { @id = "expiry_year", data_val = false })
+                @Html.DropDownListFor(model => model.ExpYear, IframeViewModel.Years, new { @id = "expiry_year", data_val = false })
             </div>
         </div>
         @Html.LabelFor(model => model.CVV)
         @Html.TextBoxFor(model => model.CVV, new { @id = "cvv", @class = "", autocomplete = "off", @maxlength = "4", @Value = "" })
 
-        <button id="btnSubmit">Submit</button>
+        <input id="btnSubmit" type="submit" value="Submit">
     }
 }
 
-    <script src="~/Scripts/IframeScripts.js"></script>
+<script src="https://test-htp.tokenex.com/iframe/iframe-v3.min.js"></script>
+<script>
+    var iframeConfig = {
+        origin: '@ViewBag.IframeConfiguration.Origin',
+        timestamp: '@ViewBag.IframeConfiguration.Timestamp',
+        tokenExID: '@ViewBag.IframeConfiguration.TokenExID',
+        authenticationKey: '@ViewBag.IframeConfiguration.AuthenticationKey',
+        tokenScheme: '@ViewBag.IframeConfiguration.TokenScheme',
+        styles: {
+            base: 'height:45px;width:98%;border:2px solid #656565;color:#4c4c4c;font-size:16px;margin:5px 0;'
+        }
+    };
+</script>
+<script src="../../Scripts/IframeScripts.js"></script>
+
